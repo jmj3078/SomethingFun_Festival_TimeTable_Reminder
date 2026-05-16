@@ -1,15 +1,15 @@
 # 🎵 Festival Timetable Reminder
 
-페스티벌 타임테이블 이미지를 업로드하면, 공연 시작 전에 이메일로 알림을 보내주는 웹 서비스입니다.
+페스티벌 타임테이블 이미지를 업로드하면, 공연 시작 전에 이메일로 알림을 보내주는 간단한 웹 서비스입니다.
 
-인스타그램·공식 사이트에 올라온 타임테이블 이미지를 그대로 올리면 Claude AI가 자동으로 공연 정보를 추출합니다.
+인스타그램·공식 사이트에 올라온 타임테이블 이미지를 그대로 올리면 Gemini AI가 자동으로 공연 정보를 추출합니다.
 
 ---
 
 ## 기능
 
 - 타임테이블 이미지 **여러 장** 동시 업로드 (Day 1 / Day 2, 스테이지별 분리 이미지 모두 지원)
-- Claude Vision AI가 이미지에서 아티스트·스테이지·시간 자동 추출
+- Gemini Vision AI가 이미지에서 아티스트·스테이지·시간 자동 추출
 - 보고 싶은 아티스트만 선택해서 알림 신청
 - **10분 / 20분 / 30분 전** 중 원하는 시간에 이메일 알림
 - 발송 실패 시 다음 체크 시점에 자동 재시도
@@ -87,7 +87,7 @@ uvicorn main:app --reload
 
 ### 2. 아티스트 선택 & 알림 신청
 
-Claude가 추출한 타임테이블을 확인하고:
+Gemini가 추출한 타임테이블을 확인하고:
 - 알림 받을 아티스트를 체크
 - 이메일 주소 입력
 - 공연 날짜와 타임존 확인 (브라우저가 자동 감지)
@@ -132,7 +132,7 @@ SMTP_PASSWORD=your_password
 ```
 TimeTable_Reminder/
 ├── main.py          # FastAPI 라우트 (웹 서버 진입점)
-├── vision.py        # Claude Vision API 이미지 파싱
+├── vision.py        # Gemini Vision API 이미지 파싱
 ├── scheduler.py     # 60초마다 알림 발송 체크
 ├── email_sender.py  # 이메일 렌더링 및 발송
 ├── models.py        # 데이터 모델 (Pydantic + SQLAlchemy)
@@ -151,7 +151,7 @@ API 키 없이도 대부분의 테스트를 실행할 수 있습니다.
 # 단위 테스트 + API 테스트 (API 키 불필요)
 pytest tests/ -m "not integration" -v
 
-# Claude API를 실제로 호출하는 통합 테스트
+# Gemini API를 실제로 호출하는 통합 테스트
 # tests/fixtures/sample_timetable.jpg 파일 필요
 ANTHROPIC_API_KEY=sk-ant-... pytest tests/ -m integration -v
 ```
@@ -181,7 +181,7 @@ ANTHROPIC_API_KEY=sk-ant-... pytest tests/ -m integration -v
 현재 UI에서 취소 기능은 없습니다. 개발 중 취소가 필요하다면 `/admin/subscriptions` 엔드포인트에서 구독 목록을 확인할 수 있습니다.
 
 **Q. 이미지를 몇 장까지 올릴 수 있나요?**
-장 수 제한은 없지만 Claude API는 이미지당 최대 5MB, 한 요청에 최대 20장을 지원합니다. 각 파일 크기 제한은 환경 변수 `MAX_IMAGE_SIZE_MB`로 조정할 수 있습니다 (기본값: 10MB).
+장 수 제한은 없지만 Gemini API는 이미지당 최대 5MB, 한 요청에 최대 20장을 지원합니다. 각 파일 크기 제한은 환경 변수 `MAX_IMAGE_SIZE_MB`로 조정할 수 있습니다 (기본값: 10MB).
 
 ---
 
