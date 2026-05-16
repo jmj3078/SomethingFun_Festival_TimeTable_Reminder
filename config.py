@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ANTHROPIC_API_KEY: str = getenv("ANTHROPIC_API_KEY", "")
-CLAUDE_MODEL: str = getenv("CLAUDE_MODEL", "claude-sonnet-4-6")
+GEMINI_API_KEY: str = getenv("GEMINI_API_KEY", "")
+GEMINI_MODEL: str   = getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 DATABASE_URL: str = getenv("DATABASE_URL", "sqlite:///./timetable.db")
 

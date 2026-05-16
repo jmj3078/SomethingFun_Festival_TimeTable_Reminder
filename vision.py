@@ -1,6 +1,8 @@
-import base64
 import json
-import anthropic
+
+from google import genai
+from google.genai import types
+
 import config
 from models import ParsedTimetable
 
@@ -48,36 +50,33 @@ class VisionParseError(Exception):
 
 def parse_timetable_image(images: list[tuple[bytes, str]]) -> ParsedTimetable:
     """
-    Send one or more images to Claude Vision and return merged timetable data.
+    Send one or more images to Gemini Vision and return merged timetable data.
     images: list of (image_bytes, mime_type) tuples
     """
-    client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
+    client = genai.Client(api_key=config.GEMINI_API_KEY)
 
     raw_response = ""
     for attempt in range(2):
         prompt = _USER_PROMPT if attempt == 0 else _build_repair_prompt(raw_response)
-        content: list[dict] = []
-        for image_bytes, mime_type in images:
-            content.append({
-                "type": "image",
-                "source": {
-                    "type": "base64",
-                    "media_type": mime_type,
-                    "data": base64.standard_b64encode(image_bytes).decode("utf-8"),
-                },
-            })
-        content.append({"type": "text", "text": prompt})
 
-        message = client.messages.create(
-            model=config.CLAUDE_MODEL,
-            max_tokens=4096,
-            temperature=0,
-            system=_SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": content}],
+        parts: list = [
+            types.Part.from_bytes(data=image_bytes, mime_type=mime_type)
+            for image_bytes, mime_type in images
+        ]
+        parts.append(prompt)
+
+        response = client.models.generate_content(
+            model=config.GEMINI_MODEL,
+            contents=parts,
+            config=types.GenerateContentConfig(
+                temperature=0,
+                max_output_tokens=4096,
+                system_instruction=_SYSTEM_PROMPT,
+            ),
         )
-        raw_response = message.content[0].text.strip()
+        raw_response = response.text.strip()
 
-        # Strip accidental markdown fences if Claude adds them despite instructions
+        # Strip accidental markdown fences
         if raw_response.startswith("```"):
             raw_response = raw_response.split("```")[1]
             if raw_response.startswith("json"):

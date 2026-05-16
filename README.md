@@ -23,7 +23,7 @@
 | 항목 | 설명 |
 |------|------|
 | Python 3.10+ | [python.org](https://www.python.org/downloads/) |
-| Anthropic API 키 | [console.anthropic.com](https://console.anthropic.com/) |
+| Google Gemini API 키 | [aistudio.google.com](https://aistudio.google.com/apikey) — 무료 발급 가능 |
 | Gmail 계정 | 이메일 발송용 (다른 SMTP도 가능) |
 
 ### 설치
@@ -46,8 +46,9 @@ pip install -r requirements.txt
 `.env` 파일을 프로젝트 루트에 만들고 아래 내용을 채워넣으세요.
 
 ```env
-# Claude AI (필수)
-ANTHROPIC_API_KEY=sk-ant-...
+# Google Gemini AI (필수) — https://aistudio.google.com/apikey 에서 무료 발급
+GEMINI_API_KEY=AIza...
+# GEMINI_MODEL=gemini-2.5-flash   # 기본값, 필요시 변경
 
 # 이메일 발송 설정 (Gmail 기준)
 SMTP_HOST=smtp.gmail.com
@@ -160,7 +161,7 @@ ANTHROPIC_API_KEY=sk-ant-... pytest tests/ -m integration -v
 | 역할 | 기술 |
 |------|------|
 | 웹 프레임워크 | FastAPI |
-| 이미지 파싱 | Claude Vision API (claude-sonnet-4-6) |
+| 이미지 파싱 | Google Gemini Vision API (gemini-2.5-flash) |
 | DB | SQLite (SQLAlchemy) |
 | 스케줄러 | APScheduler |
 | 이메일 | SMTP (smtplib) |
