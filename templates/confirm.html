@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}알림 신청 완료{% endblock %}
+{% block content %}
+<div class="card center">
+  <div class="success-icon">✅</div>
+  <h1>알림 신청 완료!</h1>
+  <p class="subtitle"><strong>{{ email }}</strong>으로 알림을 보내드립니다.</p>
+
+  <div class="sub-list">
+    {% for sub in subscriptions %}
+    <div class="sub-item">
+      <div class="sub-artist">{{ sub.artist }}</div>
+      <div class="sub-detail">
+        {{ sub.stage }} &nbsp;·&nbsp;
+        {{ sub.performance_dt.strftime('%H:%M') }} (UTC) &nbsp;·&nbsp;
+        {{ sub.notify_minutes }}분 전 알림
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <p class="hint">알림 시간은 UTC 기준입니다. 타임존: {{ user_timezone }}</p>
+
+  <a href="/" class="btn btn-secondary">새 타임테이블 등록</a>
+</div>
+{% endblock %}

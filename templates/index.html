@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}타임테이블 업로드{% endblock %}
+{% block content %}
+<div class="card center">
+  <h1>페스티벌 타임테이블 알림</h1>
+  <p class="subtitle">타임테이블 이미지를 업로드하면 공연 시작 전에 알림을 보내드립니다.</p>
+
+  {% if error %}
+  <div class="alert alert-error">{{ error }}</div>
+  {% if raw_response %}
+  <details class="debug">
+    <summary>디버그 정보 (Claude 응답)</summary>
+    <pre>{{ raw_response }}</pre>
+  </details>
+  {% endif %}
+  {% endif %}
+
+  <form method="post" action="/upload" enctype="multipart/form-data" id="upload-form">
+    <div class="upload-area" id="upload-area">
+      <div class="upload-icon">📷</div>
+      <p>이미지를 클릭하거나 드래그하여 업로드</p>
+      <p class="hint">여러 장 선택 가능 (Day 1 / Day 2, 스테이지별 분리 등) · JPG, PNG, WebP</p>
+      <input type="file" name="images" id="image-input" accept="image/*" multiple required>
+    </div>
+    <div id="preview-container" style="display:none">
+      <div id="preview-grid"></div>
+      <button type="button" id="clear-btn" class="btn btn-secondary" style="margin-top:8px">다시 선택</button>
+    </div>
+    <button type="submit" class="btn btn-primary" id="submit-btn">
+      타임테이블 분석하기
+    </button>
+  </form>
+</div>
+
+<script>
+  const input = document.getElementById('image-input');
+  const area = document.getElementById('upload-area');
+  const preview = document.getElementById('preview-container');
+  const grid = document.getElementById('preview-grid');
+  const submitBtn = document.getElementById('submit-btn');
+
+  area.addEventListener('click', () => input.click());
+  area.addEventListener('dragover', (e) => { e.preventDefault(); area.classList.add('drag-over'); });
+  area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
+  area.addEventListener('drop', (e) => {
+    e.preventDefault();
+    area.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) {
+      input.files = e.dataTransfer.files;
+      showPreviews(e.dataTransfer.files);
+    }
+  });
+
+  input.addEventListener('change', () => {
+    if (input.files.length) showPreviews(input.files);
+  });
+
+  document.getElementById('clear-btn').addEventListener('click', () => {
+    input.value = '';
+    grid.innerHTML = '';
+    preview.style.display = 'none';
+    area.style.display = '';
+  });
+
+  function showPreviews(files) {
+    grid.innerHTML = '';
+    Array.from(files).forEach((file, i) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'preview-item';
+        wrapper.innerHTML = `<img src="${e.target.result}" alt="이미지 ${i + 1}">
+          <div class="preview-label">${i + 1}번 이미지</div>`;
+        grid.appendChild(wrapper);
+      };
+      reader.readAsDataURL(file);
+    });
+    area.style.display = 'none';
+    preview.style.display = 'block';
+  }
+
+  document.getElementById('upload-form').addEventListener('submit', () => {
+    const count = input.files.length;
+    submitBtn.textContent = `Claude가 ${count}장 분석 중입니다...`;
+    submitBtn.disabled = true;
+  });
+</script>
+{% endblock %}

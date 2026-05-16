@@ -1,0 +1,36 @@
+{
+  "festival_name": "Summer Beats Festival 2026",
+  "dates": ["2026-08-15", "2026-08-16"],
+  "timezone": "KST",
+  "performances": [
+    {
+      "artist": "Billie Eilish",
+      "stage": "Main Stage",
+      "start_time": "20:00",
+      "end_time": "21:30",
+      "date": "2026-08-15"
+    },
+    {
+      "artist": "NewJeans",
+      "stage": "Main Stage",
+      "start_time": "17:00",
+      "end_time": "18:00",
+      "date": "2026-08-15"
+    },
+    {
+      "artist": "aespa",
+      "stage": "Green Stage",
+      "start_time": "15:00",
+      "end_time": "16:00",
+      "date": "2026-08-15"
+    },
+    {
+      "artist": "IU",
+      "stage": "Main Stage",
+      "start_time": "18:30",
+      "end_time": "20:00",
+      "date": "2026-08-16"
+    }
+  ],
+  "parse_warnings": []
+}

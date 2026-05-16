@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}타임테이블 확인{% endblock %}
+{% block content %}
+<div class="card wide">
+  <h1>{{ timetable_data.festival_name or "페스티벌 타임테이블" }}</h1>
+
+  {% if timetable_data.parse_warnings %}
+  <div class="alert alert-warn">
+    <strong>주의:</strong>
+    <ul>
+      {% for w in timetable_data.parse_warnings %}<li>{{ w }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if error %}
+  <div class="alert alert-error">{{ error }}</div>
+  {% endif %}
+
+  <!-- Timetable display by stage -->
+  <div class="stage-grid">
+    {% for stage, perfs in stages.items() %}
+    <div class="stage-col">
+      <div class="stage-header">{{ stage }}</div>
+      {% for perf in perfs | sort(attribute='start_time') %}
+      <div class="perf-slot">
+        <span class="perf-time">{{ perf.start_time }}{% if perf.end_time %} – {{ perf.end_time }}{% endif %}</span>
+        <span class="perf-artist">{{ perf.artist }}</span>
+        {% if perf.date %}<span class="perf-date">{{ perf.date }}</span>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Subscription form -->
+  <form method="post" action="/subscribe" id="subscribe-form">
+    <input type="hidden" name="timetable_id" value="{{ timetable.id }}">
+
+    <h2>알림 신청</h2>
+
+    <div class="form-group">
+      <label>이메일 주소</label>
+      <input type="email" name="email" required placeholder="your@email.com" class="input">
+    </div>
+
+    <div class="form-group">
+      <label>공연 날짜 선택</label>
+      {% if timetable_data.dates %}
+      <select name="festival_date" required class="input">
+        {% for d in timetable_data.dates %}
+        <option value="{{ d }}">{{ d }}</option>
+        {% endfor %}
+      </select>
+      {% else %}
+      <input type="date" name="festival_date" required class="input">
+      {% endif %}
+    </div>
+
+    <div class="form-group">
+      <label>타임존</label>
+      <input type="text" name="user_timezone" id="tz-input" class="input" required
+             placeholder="Asia/Seoul" value="Asia/Seoul">
+      <p class="hint">예: Asia/Seoul, America/New_York, Europe/London</p>
+    </div>
+
+    <div class="form-group">
+      <label>몇 분 전에 알림을 받을까요?</label>
+      <div class="radio-group">
+        <label class="radio-label"><input type="radio" name="notify_minutes" value="10"> 10분 전</label>
+        <label class="radio-label"><input type="radio" name="notify_minutes" value="20" checked> 20분 전</label>
+        <label class="radio-label"><input type="radio" name="notify_minutes" value="30"> 30분 전</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>알림 받을 아티스트 선택</label>
+      <p class="hint">여러 명 선택 가능합니다.</p>
+      <div class="artist-grid">
+        {% for stage, perfs in stages.items() %}
+        <div class="artist-stage-group">
+          <div class="artist-stage-label">{{ stage }}</div>
+          {% for perf in perfs | sort(attribute='start_time') %}
+          <label class="artist-check">
+            <input type="checkbox" name="artists"
+                   value="{{ perf.artist }}||{{ perf.stage }}||{{ perf.start_time }}">
+            <span>
+              <strong>{{ perf.artist }}</strong>
+              <small>{{ perf.start_time }}{% if perf.end_time %} – {{ perf.end_time }}{% endif %}</small>
+            </span>
+          </label>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">알림 신청하기</button>
+  </form>
+</div>
+
+<script>
+  // Auto-detect browser timezone
+  const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const tzInput = document.getElementById('tz-input');
+  if (detected) tzInput.value = detected;
+</script>
+{% endblock %}
